@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
 /*
- * Copyright (c) 2018-2019, Linux Foundation. All rights reserved.
+ * Copyright (c) 2014-2015, Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -8,21 +9,14 @@
  * 2 of the License, or (at your option) any later version.
  */
 
-#ifndef __AKM09970_H__
-#define __AKM09970_H__
+#ifndef _UAPI_MISC_AKM09970_H
+#define _UAPI_MISC_AKM09970_H
 
 #include <linux/types.h>
 #include <linux/ioctl.h>
 
-//#define pr_fmt(fmt) "akm09970: %s: %d " fmt, __func__, __LINE__
-
-#define AKM09970_DRV_NAME       "akm09970"
-#define AKM09970_CLASS_NAME     "akm"
-
-/* AKM09970 Driver Magic Number */
-#define AKM_IOC_MAGIC           'M'
-
-#define AKM_PRIVATE             109
+#define AKM_INPUT_DEVICE_NAME	"compass"
+#define AKM_MISCDEV_NAME		"akm09970_dev"
 
 /* Device specific constant values */
 #define AK09970_REG_WIA                 0x00
@@ -65,34 +59,13 @@
 
 #define AK09970_SENS_Q16    ((int32_t)(72090))  /* 1.1uT in Q16 format */
 
-#define AKM_DRDY_TIMEOUT_MS     100
-#define AKM_DEFAULT_MEASURE_HZ  10
+/* ioctl numbers */
+#define AKM_SENSOR 0xD4
+/* AFU devices */
+#define AKM_IOC_SET_ACTIVE			_IOW(AKM_SENSOR, 0x00, uint8_t)
+#define AKM_IOC_SET_MODE			_IOW(AKM_SENSOR, 0x01, uint8_t)
+#define AKM_IOC_SET_PRESS			_IOW(AKM_SENSOR, 0x02, uint8_t)
+#define AKM_IOC_GET_SENSEDATA		_IOR(AKM_SENSOR, 0x10, int[3])
+#define AKM_IOC_GET_SENSSMR			_IOR(AKM_SENSOR, 0x11, uint8_t)
 
-/* POWER SUPPLY VOLTAGE RANGE */
-#define AKM09970_VDD_MIN_UV 1800000
-#define AKM09970_VDD_MAX_UV 1800000
-
-#define PWM_PERIOD_DEFAULT_NS 1000000
-
-struct akm09970_platform_data {
-	uint8_t  sensor_smr;
-	uint8_t  sensor_mode;
-	uint8_t  sensor_state;
-	uint8_t data[AKM_SENSOR_DATA_SIZE];
-};
-
-/* IOC CMD */
-#define AKM_IOC_SET_ACTIVE \
-        _IOW(AKM_IOC_MAGIC, AKM_PRIVATE + 1, struct akm09970_platform_data)
-
-#define AKM_IOC_SET_MODE \
-        _IOW(AKM_IOC_MAGIC, AKM_PRIVATE + 2, struct akm09970_platform_data)
-
-#define AKM_IOC_GET_SENSEDATA \
-        _IOR(AKM_IOC_MAGIC, AKM_PRIVATE + 4, struct akm09970_platform_data)
-
-#define AKM_IOC_GET_SENSSMR \
-        _IOR(AKM_IOC_MAGIC, AKM_PRIVATE + 5, struct akm09970_platform_data)
-
-
-#endif /* __AKM09970_H__ */
+#endif /* _UAPI_MISC_AKM09970_H */

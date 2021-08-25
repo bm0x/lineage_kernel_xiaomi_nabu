@@ -1,4 +1,5 @@
 /* Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -23,51 +24,36 @@
 #include "dsi-panel-nt35597-truly-dualmipi-wqxga-cmd.dtsi"
 #include "dsi-panel-nt35597-truly-dsc-wqxga-cmd.dtsi"
 #include "dsi-panel-nt35597-truly-dsc-wqxga-video.dtsi"
+#include "dsi-panel-nt36860-dsc-wqhd-video.dtsi"
+#include "dsi-panel-nt36860-dsc-wqhd-cmd.dtsi"
 #include "dsi-panel-nt35695b-truly-fhd-video.dtsi"
 #include "dsi-panel-nt35695b-truly-fhd-cmd.dtsi"
 #include "dsi-panel-sharp-1080p-cmd.dtsi"
 #include "dsi-panel-sharp-dualmipi-1080p-120hz.dtsi"
 #include "dsi-panel-s6e3ha3-amoled-dualmipi-wqhd-cmd.dtsi"
 #include "dsi-panel-sw43404-amoled-dsc-wqhd-cmd.dtsi"
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 #include "dsi-panel-ss-notch-fhd-ea8074-cmd.dtsi"
-#endif
 #include "dsi-panel-sw43404-amoled-dsc-wqhd-video.dtsi"
 #include "dsi-panel-sw43404-amoled-dsc-fhd-plus-cmd.dtsi"
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 #include "dsi-panel-samsung-fhd-ea8076-cmd.dtsi"
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+#include "dsi-panel-samsung-fhd-ea8076-f1-cmd.dtsi"
+#include "dsi-panel-samsung-fhd-ea8076-f1p2-cmd.dtsi"
+#include "dsi-panel-samsung-fhd-ea8076-f1p2-2-cmd.dtsi"
+#include "dsi-panel-samsung-fhd-ea8076-f1mp-cmd.dtsi"
 #include "dsi-panel-tianma-fhd-nt36672a-video.dtsi"
-#endif // CONFIG_MACH_XIAOMI_VAYU
-#endif // CONFIG_MACH_XIAOMI_SM8150
 #include "dsi-panel-nt36850-truly-dualmipi-wqhd-cmd.dtsi"
 #include "dsi-panel-rm69299-visionox-amoled-fhd-plus-video.dtsi"
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 #include "dsi-panel-ss-fhd-ea8076-cmd.dtsi"
 #include "dsi-panel-ss-fhd-ea8076-global-cmd.dtsi"
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+#include "dsi-panel-visionox-fhd-r66456-f11-cmd.dtsi"
+#include "dsi-panel-samsung-fhd-ea8076-f1s-cmd.dtsi"
+#include "dsi-panel-j2a-38-0c-0a-dsc-cmd.dtsi"
+#include "dsi-panel-j2a-42-02-0b-dsc-cmd.dtsi"
 #include "dsi-panel-j20s-36-02-0a-lcd-dsc-vid.dtsi"
 #include "dsi-panel-j20s-42-02-0b-lcd-dsc-vid.dtsi"
-#endif // CONFIG_MACH_XIAOMI_VAYU
-#endif
+#include "dsi-panel-k82-42-02-0a-video.dtsi"
+#include "dsi-panel-k82-36-02-0b-video.dtsi"
 #include <dt-bindings/clock/mdss-10nm-pll-clk.h>
-
-#ifndef CONFIG_MACH_XIAOMI_SM8150
-&tlmm {
-	display_panel_avdd_eldo_default: display_panel_avdd_eldo_default {
-		mux {
-			pins = "gpio130";
-			function = "gpio";
-		};
-		config {
-			pins = "gpio130";
-			drive-strength = <8>;
-			bias-disable = <0>;
-			output-high;
-		};
-	};
-};
-#endif
 
 &soc {
 	dsi_panel_pwr_supply: dsi_panel_pwr_supply {
@@ -188,18 +174,96 @@
 		};
 	};
 
-#ifndef CONFIG_MACH_XIAOMI_SM8150
-	display_panel_avdd_eldo: display-gpio-regulator@0 {
-		compatible = "regulator-fixed";
-		regulator-name = "display_panel_avdd_eldo";
-		regulator-min-microvolt = <1800000>;
-		regulator-max-microvolt = <1800000>;
-		regulator-enable-ramp-delay = <233>;
-		gpio = <&tlmm 130 0>;
-		enable-active-high;
-		regulator-boot-on;
-		pinctrl-names = "default";
-		pintctrl-0 = <&display_panel_avdd_eldo_default>;
+	dsi_amoled_panel_pwr_supply: dsi_amoled_panel_pwr_supply {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		qcom,panel-supply-entry@0 {
+			reg = <0>;
+			qcom,supply-name = "vddio";
+			qcom,supply-min-voltage = <1800000>;
+			qcom,supply-max-voltage = <1800000>;
+			qcom,supply-enable-load = <62000>;
+			qcom,supply-disable-load = <80>;
+			//qcom,supply-post-on-sleep = <20>;
+		};
+
+		qcom,panel-supply-entry@1 {
+			reg = <1>;
+			qcom,supply-name = "vci";
+			qcom,supply-min-voltage = <3000000>;
+			qcom,supply-max-voltage = <3000000>;
+			qcom,supply-enable-load = <62000>;
+			qcom,supply-disable-load = <80>;
+			qcom,supply-post-on-sleep = <10>;
+			qcom,supply-pre-off-sleep = <10>;
+		};
+	};
+
+	dsi_amoled_panel_pwr_external_supply: dsi_amoled_panel_pwr_external_supply {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		qcom,panel-supply-entry@0 {
+			reg = <0>;
+			qcom,supply-name = "vddio";
+			qcom,supply-min-voltage = <1800000>;
+			qcom,supply-max-voltage = <1800000>;
+			qcom,supply-enable-load = <62000>;
+			qcom,supply-disable-load = <80>;
+			//qcom,supply-post-on-sleep = <20>;
+		};
+
+		qcom,panel-supply-entry@1 {
+			reg = <1>;
+			qcom,supply-name = "vcie";
+			qcom,supply-min-voltage = <3000000>;
+			qcom,supply-max-voltage = <3000000>;
+			qcom,supply-enable-load = <62000>;
+			qcom,supply-disable-load = <80>;
+			qcom,supply-post-on-sleep = <10>;
+			qcom,supply-pre-off-sleep = <10>;
+		};
+	};
+
+	dsi_panel_pwr_supply_k82_vddio: dsi_panel_pwr_supply_k82_vddio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		qcom,panel-supply-entry@0 {
+			reg = <0>;
+			qcom,supply-name = "vddio";
+			qcom,supply-min-voltage = <1800000>;
+			qcom,supply-max-voltage = <1800000>;
+			qcom,supply-enable-load = <62000>;
+			qcom,supply-disable-load = <80>;
+			qcom,supply-post-on-sleep = <20>;
+			qcom,supply-post-off-sleep = <10>;
+		};
+		qcom,panel-supply-entry@1 {
+			reg = <1>;
+			qcom,supply-name = "enp";
+			qcom,supply-min-voltage = <5500000>;
+			qcom,supply-max-voltage = <5500000>;
+			qcom,supply-enable-load = <100000>;
+			qcom,supply-disable-load = <100>;
+			qcom,supply-pre-on-sleep = <0>;
+			qcom,supply-pre-off-sleep = <0>;
+			qcom,supply-post-on-sleep = <10>;
+			qcom,supply-post-off-sleep = <10>;
+		};
+		qcom,panel-supply-entry@2 {
+			reg = <2>;
+			qcom,supply-name = "enn";
+			qcom,supply-min-voltage = <5500000>;
+			qcom,supply-max-voltage = <5500000>;
+			qcom,supply-enable-load = <100000>;
+			qcom,supply-disable-load = <100>;
+			qcom,supply-pre-on-sleep = <0>;
+			qcom,supply-pre-off-sleep = <0>;
+			qcom,supply-post-on-sleep = <10>;
+			qcom,supply-post-off-sleep = <10>;
+		};
 	};
 #endif
 
@@ -441,7 +505,6 @@
 		qcom,dsi-panel = <&dsi_sw43404_amoled_fhd_plus_cmd>;
 	};
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_ss_ea8074_fhd_cmd_display: qcom,dsi-display@19 {
 		label = "dsi_ss_ea8074_fhd_cmd_display";
 		qcom,display-type = "primary";
@@ -464,6 +527,50 @@
 		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_cmd>;
 	};
 
+	dsi_samsung_fhd_ea8076_f1_cmd_display: qcom,dsi-display@21 {
+		label = "dsi_samsung_fhd_ea8076_f1_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1_cmd>;
+	};
+
+	dsi_samsung_fhd_ea8076_f1mp_cmd_display: qcom,dsi-display@22 {
+		label = "dsi_samsung_fhd_ea8076_f1mp_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1mp_cmd>;
+	};
+
+	dsi_samsung_fhd_ea8076_f1p2_2_cmd_display: qcom,dsi-display@23 {
+		label = "dsi_samsung_fhd_ea8076_f1p2_2_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1p2_2_cmd>;
+	};
+
+	dsi_samsung_fhd_ea8076_f1p2_cmd_display: qcom,dsi-display@24 {
+		label = "dsi_samsung_fhd_ea8076_f1p2_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1p2_cmd>;
+	};
+
 	dsi_tianma_fhd_nt36672a_video_display: qcom,dsi-display@25 {
 		label = "dsi_tianma_fhd_nt36672a_video_display";
 		qcom,display-type = "primary";
@@ -474,13 +581,8 @@
 
 		qcom,dsi-panel = <&dsi_tianma_fhd_nt36672a_video>;
 	};
-#endif
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_dual_nt36850_truly_cmd_display: qcom,dsi-display@26 {
-#else
-	dsi_dual_nt36850_truly_cmd_display: qcom,dsi-display@19 {
-#endif
 		label = "dsi_dual_nt36850_truly_cmd_display";
 		qcom,display-type = "primary";
 
@@ -491,11 +593,7 @@
 		qcom,dsi-panel = <&dsi_dual_nt36850_truly_cmd>;
 	};
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_nt35695b_truly_fhd_cmd_sec_display: qcom,dsi-display@27 {
-#else
-	dsi_nt35695b_truly_fhd_cmd_sec_display: qcom,dsi-display@20 {
-#endif
 		label = "dsi_nt35695b_truly_fhd_cmd_display";
 		qcom,display-type = "secondary";
 
@@ -507,11 +605,7 @@
 
 	};
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_nt35695b_truly_fhd_video_sec_display: qcom,dsi-display@28 {
-#else
-	dsi_nt35695b_truly_fhd_video_sec_display: qcom,dsi-display@21 {
-#endif
 		label = "dsi_nt35695b_truly_fhd_video_display";
 		qcom,display-type = "secondary";
 
@@ -522,11 +616,7 @@
 		qcom,dsi-panel = <&dsi_nt35695b_truly_fhd_video>;
 	};
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_sim_sec_hd_cmd_display: qcom,dsi-display@29 {
-#else
-	dsi_sim_sec_hd_cmd_display: qcom,dsi-display@22 {
-#endif
 
 		label = "dsi_sim_sec_hd_cmd_display";
 		qcom,display-type = "secondary";
@@ -538,7 +628,6 @@
 		qcom,dsi-panel = <&dsi_sim_sec_hd_cmd>;
 	};
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_ss_fhd_ea8076_cmd_display: qcom,dsi-display@30 {
 
 		label = "dsi_ss_fhd_ea8076_cmd_display";
@@ -549,6 +638,18 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_ss_fhd_ea8076_cmd>;
+	};
+
+	dsi_visionox_fhd_r66456_f11_cmd_display: qcom,dsi-display@31 {
+
+		label = "dsi_visionox_fhd_r66456_f11_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_visionox_fhd_r66456_f11_cmd>;
 	};
 
 	dsi_ss_fhd_ea8076_global_cmd_display: qcom,dsi-display@32 {
@@ -563,7 +664,35 @@
 		qcom,dsi-panel = <&dsi_ss_fhd_ea8076_global_cmd>;
 	};
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+	dsi_samsung_fhd_ea8076_f1s_cmd_display: qcom,dsi-display@33 {
+		label = "dsi_samsung_fhd_ea8076_f1s_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_samsung_fhd_ea8076_f1s_cmd>;
+	};
+
+	dsi_j2a_38_0c_0a_dsc_cmd_display: qcom,dsi-display@34{
+		label = "dsi_j2a_38_0c_0a_dsc_cmd_display";
+		qcom,display-type = "primary";
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+		qcom,dsi-panel = <&dsi_j2a_38_0c_0a_dsc_cmd>;
+	};
+
+	dsi_j2a_42_02_0b_dsc_cmd_display: qcom,dsi-display@35{
+		label = "dsi_j2a_42_02_0b_dsc_cmd_display";
+		qcom,display-type = "primary";
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
+		qcom,dsi-panel = <&dsi_j2a_42_02_0b_dsc_cmd>;
+	};
+
 	dsi_j20s_36_02_0a_video_display: qcom,dsi-display@36{
 		label = "dsi_j20s_36_02_0a_video_display";
 		qcom,display-type = "primary";
@@ -587,14 +716,8 @@
 		qcom,ulps-enabled;
 		qcom,dsi-panel = <&dsi_j20s_42_02_0b_video>;
 	};
-#endif
-#endif
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	dsi_rm69299_visionox_amoled_vid_display: qcom,dsi-display@40 {
-#else
-	dsi_rm69299_visionox_amoled_vid_display: qcom,dsi-display@23 {
-#endif
 		label = "dsi_rm69299_visionox_amoled_vid_display";
 		qcom,display-type = "primary";
 
@@ -603,6 +726,54 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0";
 
 		qcom,dsi-panel = <&dsi_rm69299_visionox_amoled_video>;
+	};
+
+	dsi_k82_42_02_0a_dual_cphy_vid_display: qcom,dsi-display@41 {
+		label = "dsi_k82_42_02_0a_dual_cphy_vid_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0 1>;
+		qcom,dsi-phy-num = <0 1>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0",
+					"cphy_byte_clk0", "cphy_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_k82_42_02_0a_dual_cphy_video>;
+	};
+
+	dsi_nt36860_dsc_video_display: qcom,dsi-display@42 {
+		label = "dsi_nt36860_dsc_video_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0",
+					"cphy_byte_clk0", "cphy_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_nt36860_dsc_video>;
+	};
+
+	dsi_nt36860_dsc_cmd_display: qcom,dsi-display@43 {
+		label = "dsi_nt36860_dsc_cmd_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0>;
+		qcom,dsi-phy-num = <0>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0",
+					"cphy_byte_clk0", "cphy_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_nt36860_dsc_cmd>;
+	};
+
+	dsi_k82_36_02_0b_dual_cphy_vid_display: qcom,dsi-display@44 {
+		label = "dsi_k82_36_02_0b_dual_cphy_vid_display";
+		qcom,display-type = "primary";
+
+		qcom,dsi-ctrl-num = <0 1>;
+		qcom,dsi-phy-num = <0 1>;
+		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0",
+					"cphy_byte_clk0", "cphy_pixel_clk0";
+
+		qcom,dsi-panel = <&dsi_k82_36_02_0b_dual_cphy_video>;
 	};
 
 	sde_dsi: qcom,dsi-display-primary {
@@ -635,12 +806,8 @@
 		vddio-supply = <&pm8150_l14>;
 		lab-supply = <&lcdb_ldo_vreg>;
 		ibb-supply = <&lcdb_ncp_vreg>;
-#ifndef CONFIG_MACH_XIAOMI_SM8150
-		vdd-supply = <&display_panel_avdd_eldo>;
-#endif
-#ifdef CONFIG_MACH_XIAOMI_SM8150
+		//vdd-supply = <&display_panel_avdd_eldo>;
 		vci-supply = <&pm8150_l13>;
-#endif
 
 #ifdef CONFIG_MACH_XIAOMI_VAYU
 		qcom,dsi-display-list =
@@ -683,6 +850,8 @@
 			&dsi_dual_nt35597_truly_cmd_display
 			&dsi_nt35597_truly_dsc_cmd_display
 			&dsi_nt35597_truly_dsc_video_display
+			&dsi_nt36860_dsc_video_display
+			&dsi_nt36860_dsc_cmd_display
 			&dsi_sim_vid_display
 			&dsi_dual_sim_vid_display
 			&dsi_sim_cmd_display
@@ -695,8 +864,25 @@
 			&dsi_sw43404_amoled_video_display
 			&dsi_sw43404_amoled_fhd_plus_cmd_display
 			&dsi_rm69299_visionox_amoled_vid_display
-			&dsi_dual_nt36850_truly_cmd_display>;
-#endif
+			&dsi_dual_nt36850_truly_cmd_display
+			&dsi_ss_ea8074_fhd_cmd_display
+			&dsi_samsung_fhd_ea8076_cmd_display
+			&dsi_samsung_fhd_ea8076_f1_cmd_display
+			&dsi_samsung_fhd_ea8076_f1mp_cmd_display
+			&dsi_samsung_fhd_ea8076_f1p2_2_cmd_display
+			&dsi_samsung_fhd_ea8076_f1p2_cmd_display
+			&dsi_tianma_fhd_nt36672a_video_display
+			&dsi_dual_nt36850_truly_cmd_display
+			&dsi_ss_fhd_ea8076_cmd_display
+			&dsi_visionox_fhd_r66456_f11_cmd_display
+			&dsi_ss_fhd_ea8076_global_cmd_display
+			&dsi_samsung_fhd_ea8076_f1s_cmd_display
+			&dsi_j2a_38_0c_0a_dsc_cmd_display
+			&dsi_j2a_42_02_0b_dsc_cmd_display
+			&dsi_j20s_36_02_0a_video_display
+			&dsi_j20s_42_02_0b_video_display
+			&dsi_k82_42_02_0a_dual_cphy_vid_display
+			&dsi_k82_36_02_0b_dual_cphy_vid_display>;
 	};
 
 	sde_dsi1: qcom,dsi-display-secondary {
@@ -729,9 +915,7 @@
 		vddio-supply = <&pm8150_l14>;
 		lab-supply = <&lcdb_ldo_vreg>;
 		ibb-supply = <&lcdb_ncp_vreg>;
-#ifndef CONFIG_MACH_XIAOMI_SM8150
-		vdd-supply = <&display_panel_avdd_eldo>;
-#endif
+		//vdd-supply = <&display_panel_avdd_eldo>;
 
 		qcom,dsi-display-list =
 			<&dsi_nt35695b_truly_fhd_cmd_sec_display
@@ -757,9 +941,7 @@
 &sde_dp {
 	qcom,dp-usbpd-detection = <&pm8150b_pdphy>;
 	qcom,ext-disp = <&ext_disp>;
-#ifndef CONFIG_MACH_XIAOMI_SM8150
-	qcom,dp-aux-switch = <&fsa4480>;
-#endif
+	/* qcom,dp-aux-switch = <&fsa4480>; */
 
 	qcom,usbplug-cc-gpio = <&tlmm 38 0>;
 
@@ -868,6 +1050,39 @@
 	};
 };
 
+&dsi_nt36860_dsc_video {
+	qcom,esd-check-enabled;
+	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
+	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0A];
+	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
+	qcom,mdss-dsi-panel-status-value = <0x9C>;
+	qcom,mdss-dsi-panel-on-check-value = <0x9C>;
+	qcom,mdss-dsi-panel-status-read-length = <1>;
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 15 05 05 0b 2f 06
+				1f 05 13 04 00 12 15];
+			qcom,display-topology = <1 1 1>,
+						<2 2 1>, /* dsc merge */
+						<2 1 1>; /* 3d mux */
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+&dsi_nt36860_dsc_cmd {
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 15 05 05 0b 2f 06
+				1f 05 13 04 00 12 15];
+			qcom,display-topology = <1 1 1>,
+						<2 2 1>, /* dsc merge */
+						<2 1 1>; /* 3d mux */
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
 &dsi_sharp_4k_dsc_video {
 	qcom,esd-check-enabled;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
@@ -942,7 +1157,7 @@
 	qcom,mdss-dsi-display-timings {
 		timing@0 {
 			qcom,mdss-dsi-panel-phy-timings = [00 1e 08 07 24 22
-				08 08 05 02 04 00 19 17];
+			08 08 05 02 04 00 19 17];
 			qcom,display-topology = <1 0 1>;
 			qcom,default-topology-index = <0>;
 			qcom,panel-roi-alignment = <720 40 720 40 720 40>;
@@ -1154,7 +1369,6 @@
 	};
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 &dsi_ss_notch_fhd_ea8074_cmd {
 	qcom,mdss-dsi-t-clk-post = <0x19>;
 	qcom,mdss-dsi-t-clk-pre = <0x1C>;
@@ -1167,7 +1381,6 @@
 		};
 	};
 };
-#endif
 
 &dsi_sharp_1080_cmd {
 	qcom,mdss-dsi-t-clk-post = <0x18>;
@@ -1182,7 +1395,6 @@
 	};
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 &dsi_samsung_fhd_ea8076_cmd {
 	qcom,mdss-dsi-t-clk-post = <0x1A>;
 	qcom,mdss-dsi-t-clk-pre = <0x1E>;
@@ -1195,7 +1407,58 @@
 		};
 	};
 };
-#endif
+
+&dsi_samsung_fhd_ea8076_f1_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x1A>;
+	qcom,mdss-dsi-t-clk-pre = <0x1E>;
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 24 0A 0A 26 25 09
+                            0A 06 03 04 00 1E 1A];
+			qcom,display-topology = <1 0 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+&dsi_samsung_fhd_ea8076_f1mp_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x1A>;
+	qcom,mdss-dsi-t-clk-pre = <0x1E>;
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 24 0A 0A 26 25 09
+                            0A 06 03 04 00 1E 1A];
+			qcom,display-topology = <1 0 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+&dsi_samsung_fhd_ea8076_f1p2_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x1A>;
+	qcom,mdss-dsi-t-clk-pre = <0x1E>;
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 24 0A 0A 26 25 09
+							0A 06 03 04 00 1E 1A];
+			qcom,display-topology = <1 0 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+&dsi_samsung_fhd_ea8076_f1p2_2_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x1A>;
+	qcom,mdss-dsi-t-clk-pre = <0x1E>;
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 24 0A 0A 26 25 09
+                            0A 06 03 04 00 1E 1A];
+			qcom,display-topology = <1 0 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
 
 &dsi_dual_nt36850_truly_cmd {
 	qcom,mdss-dsi-display-timings {
@@ -1209,7 +1472,6 @@
 	};
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 &dsi_tianma_fhd_nt36672a_video {
 	qcom,mdss-dsi-t-clk-post = <0x18>;
 	qcom,mdss-dsi-t-clk-pre = <0x1B>;
@@ -1224,6 +1486,27 @@
 };
 
 &dsi_ss_fhd_ea8076_cmd {
+        qcom,mdss-dsi-t-clk-post = <0x0F>;
+        qcom,mdss-dsi-t-clk-pre = <0x37>;
+/*
+        qcom,esd-check-enabled;
+        qcom,mdss-dsi-panel-status-check-mode = "reg_read";
+        qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0A];
+        qcom,mdss-dsi-panel-status-command-state = "dsi_hs_mode";
+        qcom,mdss-dsi-panel-status-value = <0x9c>;
+        qcom,mdss-dsi-panel-status-read-length = <1>;
+*/
+        qcom,mdss-dsi-display-timings {
+                timing@0{
+                        qcom,mdss-dsi-panel-phy-timings = [00 24 0A 0A 26 25 09
+                            0A 06 03 04 00 1E 1A];
+                        qcom,display-topology = <1 0 1>;
+                        qcom,default-topology-index = <0>;
+                };
+        };
+};
+
+&dsi_visionox_fhd_r66456_f11_cmd {
 	qcom,mdss-dsi-t-clk-post = <0x0F>;
 	qcom,mdss-dsi-t-clk-pre = <0x37>;
 	qcom,mdss-dsi-display-timings {
@@ -1249,7 +1532,48 @@
 	};
 };
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+&dsi_samsung_fhd_ea8076_f1s_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x1A>;
+	qcom,mdss-dsi-t-clk-pre = <0x1E>;
+	qcom,mdss-dsi-clk-strength = <0xFF>;
+	qcom,mdss-dsi-display-timings {
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 24 0A 0A 26 24 0A
+				0A 06 02 04 00 1E 1A];
+			qcom,display-topology = <1 0 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+&dsi_j2a_38_0c_0a_dsc_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x0F>;
+	qcom,mdss-dsi-t-clk-pre = <0x37>;
+	qcom,mdss-dsi-display-timings {
+		/* 60 Hz */
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 12 04 04 1E 1E 04
+				04 02 02 04 00 11 14];
+			qcom,display-topology = <1 1 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+&dsi_j2a_42_02_0b_dsc_cmd {
+	qcom,mdss-dsi-t-clk-post = <0x0F>;
+	qcom,mdss-dsi-t-clk-pre = <0x37>;
+	qcom,mdss-dsi-display-timings {
+		/* 60 Hz */
+		timing@0{
+			qcom,mdss-dsi-panel-phy-timings = [00 12 04 04 1E 1E 04
+				04 02 02 04 00 11 14];
+			qcom,display-topology = <1 1 1>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
 &dsi_j20s_36_02_0a_video {
 	qcom,mdss-dsi-t-clk-post = <0x17>;
 	qcom,mdss-dsi-t-clk-pre = <0x18>;
@@ -1277,5 +1601,26 @@
 		};
 	};
 };
-#endif
-#endif
+
+&dsi_k82_42_02_0a_dual_cphy_video {
+	qcom,mdss-dsi-display-timings {
+		timing@0 {
+			qcom,mdss-dsi-panel-phy-timings = [00 00 00 00 27 2B 0A
+				19 0A 02 04 00 00 00];
+			qcom,display-topology = <2 0 2>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+&dsi_k82_36_02_0b_dual_cphy_video {
+	qcom,mdss-dsi-display-timings {
+		timing@0 {
+			qcom,mdss-dsi-panel-phy-timings = [00 00 00 00 27 2B 0A
+				19 0A 02 04 00 00 00];
+			qcom,display-topology = <2 0 2>;
+			qcom,default-topology-index = <0>;
+		};
+	};
+};
+
+

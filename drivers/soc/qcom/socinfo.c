@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -71,11 +72,8 @@ enum {
 	HW_PLATFORM_HDK = 31,
 	HW_PLATFORM_IOT = 32,
 	HW_PLATFORM_IDP = 34,
-#ifdef CONFIG_MACH_XIAOMI_SM8150
-	HW_PLATFORM_F1  = 37,
-	HW_PLATFORM_F11 = 40,
 	HW_PLATFORM_J20S = 47,
-#endif
+	HW_PLATFORM_K82 = 48,
 	HW_PLATFORM_INVALID
 };
 
@@ -100,13 +98,9 @@ const char *hw_platform[] = {
 	[HW_PLATFORM_TTP] = "TTP",
 	[HW_PLATFORM_HDK] = "HDK",
 	[HW_PLATFORM_IOT] = "IOT",
-	[HW_PLATFORM_IDP] = "IDP"
-#ifdef CONFIG_MACH_XIAOMI_SM8150
-	,
-	[HW_PLATFORM_F1]  = "CEPHEUS",
-	[HW_PLATFORM_F11] = "RAPHAEL",
-	[HW_PLATFORM_J20S] = "VAYU"
-#endif
+	[HW_PLATFORM_IDP] = "IDP",
+	[HW_PLATFORM_J20S] = "VAYU",
+	[HW_PLATFORM_K82] = "NABU"
 };
 
 enum {
@@ -1826,7 +1820,6 @@ static void socinfo_select_format(void)
 	}
 }
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 const char *product_name_get(void)
 {
 	char *product_name = NULL;
@@ -1857,12 +1850,10 @@ EXPORT_SYMBOL(get_hw_country_version);
 uint32_t get_hw_version_platform(void)
 {
 	uint32_t hw_type = socinfo_get_platform_type();
-	if (hw_type == HW_PLATFORM_F1)
-		return HARDWARE_PLATFORM_CEPHEUS;
-	else if (hw_type == HW_PLATFORM_F11)
-		return HARDWARE_PLATFORM_RAPHAEL;
-	else if (hw_type == HW_PLATFORM_J20S)
+	if (hw_type == HW_PLATFORM_J20S)
 		return HARDWARE_PLATFORM_VAYU;
+	else if (hw_type == HW_PLATFORM_K82)
+		return HARDWARE_PLATFORM_NABU;
 	else
 		return HARDWARE_PLATFORM_UNKNOWN;
 }
@@ -1888,7 +1879,6 @@ uint32_t get_hw_version_build(void)
 	return (version & HW_BUILD_VERSION_MASK) >> HW_BUILD_VERSION_SHIFT;
 }
 EXPORT_SYMBOL(get_hw_version_build);
-#endif
 
 int __init socinfo_init(void)
 {

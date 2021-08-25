@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,9 +17,7 @@
 #include <dt-bindings/clock/qcom,audio-ext-clk.h>
 
 &snd_9360 {
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	status = "disabled";
-#endif
 	qcom,ext-disp-audio-rx = <1>;
 	qcom,wcn-btfm = <1>;
 	qcom,mi2s-audio-intf = <1>;
@@ -75,16 +74,10 @@
 		"MADINPUT", "MCLK",
 		"hifi amp", "LINEOUT1",
 		"hifi amp", "LINEOUT2",
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 		"AMIC1", "MIC BIAS1",
-#endif
 		"AMIC2", "MIC BIAS2",
 		"MIC BIAS2", "Headset Mic",
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 		"AMIC3", "MIC BIAS3",
-#else
-		"AMIC3", "MIC BIAS2",
-#endif
 		"MIC BIAS2", "ANCRight Headset Mic",
 		"AMIC4", "MIC BIAS2",
 		"MIC BIAS2", "ANCLeft Headset Mic",
@@ -105,13 +98,8 @@
 		"SpkrLeft IN", "SPK1 OUT",
 		"SpkrRight IN", "SPK2 OUT";
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	qcom,msm-mbhc-hphl-swh = <0>;
 	qcom,msm-mbhc-gnd-swh = <0>;
-#else
-	qcom,msm-mbhc-hphl-swh = <1>;
-	qcom,msm-mbhc-gnd-swh = <1>;
-#endif
 	qcom,msm-mbhc-hs-mic-max-threshold-mv = <1700>;
 	qcom,msm-mbhc-hs-mic-min-threshold-mv = <50>;
 	qcom,hph-en0-gpio = <&tavil_hph_en0>;
@@ -122,17 +110,12 @@
 	asoc-codec-names = "msm-stub-codec.1",
 			   "msm-ext-disp-audio-codec-rx";
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	qcom,wsa-max-devs = <0>;
-#else
-	qcom,wsa-max-devs = <2>;
-#endif
 	qcom,wsa-devs = <&wsa881x_70211>, <&wsa881x_70212>,
 			<&wsa881x_70213>, <&wsa881x_70214>;
 	qcom,wsa-aux-dev-prefix = "SpkrLeft", "SpkrRight",
 				  "SpkrLeft", "SpkrRight";
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	/* pinctrl-names = "quat-mi2s-active", "quat-mi2s-sleep"; */
 	pinctrl-names = "quat_mi2s_enable", "quat_mi2s_disable",
 			"quat_tdm_enable", "quat_tdm_disable";
@@ -142,7 +125,6 @@
 					&quat_mi2s_sd1_sleep>;
 	pinctrl-2 = <&quat_tdm_active &quat_tdm_dout_active>;
 	pinctrl-3 = <&quat_tdm_sleep &quat_tdm_dout_sleep>;
-#endif
 };
 
 &soc {
@@ -321,17 +303,10 @@
 					   "cdc-vddpx-1",
 					   "cdc-vdd-3v3";
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 		qcom,cdc-micbias1-mv = <2700>;
 		qcom,cdc-micbias2-mv = <1800>;
 		qcom,cdc-micbias3-mv = <2700>;
 		qcom,cdc-micbias4-mv = <2700>;
-#else
-		qcom,cdc-micbias1-mv = <1800>;
-		qcom,cdc-micbias2-mv = <1800>;
-		qcom,cdc-micbias3-mv = <1800>;
-		qcom,cdc-micbias4-mv = <1800>;
-#endif
 
 		qcom,cdc-mclk-clk-rate = <9600000>;
 		qcom,cdc-slim-ifd = "tavil-slim-ifd";

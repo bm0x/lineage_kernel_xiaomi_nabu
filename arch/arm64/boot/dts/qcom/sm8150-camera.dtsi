@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -168,11 +169,7 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <162>;
 			hw-tbuf = <227>;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			hw-scl-stretch-en = <1>;
-#else
-			hw-scl-stretch-en = <0>;
-#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -187,11 +184,7 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			hw-scl-stretch-en = <1>;
-#else
-			hw-scl-stretch-en = <0>;
-#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -206,11 +199,7 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			hw-scl-stretch-en = <0>;
-#else
-			hw-scl-stretch-en = <1>;
-#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -275,11 +264,7 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <162>;
 			hw-tbuf = <227>;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			hw-scl-stretch-en = <1>;
-#else
-			hw-scl-stretch-en = <0>;
-#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -294,11 +279,7 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			hw-scl-stretch-en = <1>;
-#else
-			hw-scl-stretch-en = <0>;
-#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;
@@ -313,11 +294,7 @@
 			hw-thd-dat = <22>;
 			hw-thd-sta = <35>;
 			hw-tbuf = <62>;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			hw-scl-stretch-en = <0>;
-#else
-			hw-scl-stretch-en = <1>;
-#endif
 			hw-trdhld = <6>;
 			hw-tsp = <3>;
 			cci-clk-src = <37500000>;

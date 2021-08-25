@@ -2,6 +2,7 @@
  * LED Class Core
  *
  * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
+ * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2005-2007 Richard Purdie <rpurdie@openedhand.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,9 +58,7 @@ static ssize_t brightness_store(struct device *dev,
 	if (state == LED_OFF && !(led_cdev->flags & LED_KEEP_TRIGGER))
 		led_trigger_remove(led_cdev);
 	led_set_brightness(led_cdev, state);
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	led_cdev->usr_brightness_req = state;
-#endif
 
 	ret = size;
 unlock:
@@ -76,7 +75,6 @@ static ssize_t max_brightness_show(struct device *dev,
 	return sprintf(buf, "%u\n", led_cdev->max_brightness);
 }
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 static ssize_t max_brightness_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
@@ -95,13 +93,8 @@ static ssize_t max_brightness_store(struct device *dev,
 
 	return size;
 }
-#endif
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 static DEVICE_ATTR_RW(max_brightness);
-#else
-static DEVICE_ATTR_RO(max_brightness);
-#endif
 
 #ifdef CONFIG_LEDS_TRIGGERS
 static DEVICE_ATTR(trigger, 0644, led_trigger_show, led_trigger_store);

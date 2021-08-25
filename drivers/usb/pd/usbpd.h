@@ -1,4 +1,5 @@
 /* Copyright (c) 2016-2018, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -71,7 +72,6 @@ struct pd_phy_params {
 	u8		frame_filter_val;
 };
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 struct usbpd_pdo {
 	bool pps;
 	int type;
@@ -83,7 +83,6 @@ struct usbpd_pdo {
 
 int usbpd_get_pps_status(struct usbpd *pd, u32 *status);
 int usbpd_fetch_pdo(struct usbpd *pd, struct usbpd_pdo *pdos);
-#endif
 
 #if IS_ENABLED(CONFIG_QPNP_USB_PDPHY)
 int pd_phy_open(struct pd_phy_params *params);
@@ -125,7 +124,6 @@ static inline void pd_phy_close(void)
 }
 #endif
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 enum uvdm_state {
 	USBPD_UVDM_DISCONNECT,
 	USBPD_UVDM_CHARGER_VERSION,
@@ -162,6 +160,5 @@ struct usbpd_vdm_data {
 
 #define USBPD_WEAK_PPS_POWER		18000000
 #define USBPD_WAKK_PPS_CURR_LIMIT	1500000
-#endif
 
 #endif /* _USBPD_H */

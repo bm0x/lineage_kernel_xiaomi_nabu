@@ -1,4 +1,5 @@
 /* Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -250,7 +251,6 @@
 	qcom,platform-reset-gpio = <&tlmm 6 0>;
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 &dsi_samsung_fhd_ea8076_cmd {
 	qcom,panel-supply-entries = <&dsi_amoled_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-pmic-control-type = "bl_ctrl_dcs";
@@ -265,7 +265,6 @@
 &dsi_samsung_fhd_ea8076_cmd_display {
 	qcom,dsi-display-active;
 };
-#endif
 
 &qupv3_se9_i2c {
 	status = "ok";

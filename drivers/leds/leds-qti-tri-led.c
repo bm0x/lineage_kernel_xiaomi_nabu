@@ -1,4 +1,5 @@
 /* Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -83,7 +84,6 @@ struct qpnp_tri_led_chip {
 	u8			bitmap;
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 enum SYSFS_NODE{
 	BREATH = 0,
 	STEP_MS,
@@ -91,7 +91,6 @@ enum SYSFS_NODE{
 	LUT_PATTERN,
 	LO_IDX,
 };
-#endif
 
 static int qpnp_tri_led_read(struct qpnp_tri_led_chip *chip, u16 addr, u8 *val)
 {
@@ -413,7 +412,6 @@ static const struct attribute *breath_attrs[] = {
 	NULL
 };
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 extern int qpnp_lpg_ramp_step_ms_get(struct pwm_device *pwm);
 extern int qpnp_lpg_ramp_step_ms_set(struct pwm_device *pwm, u16 step_ms);
 
@@ -578,15 +576,12 @@ static const struct attribute *lut_pattern_attrs[] = {
 	&dev_attr_lut_pattern.attr,
 	NULL
 };
-#endif
 
 static int qpnp_tri_led_register(struct qpnp_tri_led_chip *chip)
 {
 	struct qpnp_led_dev *led;
 	int rc, i, j;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	int sysfs_index = 0;
-#endif
 
 	for (i = 0; i < chip->num_leds; i++) {
 		led = &chip->leds[i];
@@ -611,9 +606,7 @@ static int qpnp_tri_led_register(struct qpnp_tri_led_chip *chip)
 				& PWM_OUTPUT_MODULATED) {
 			rc = sysfs_create_files(&led->cdev.dev->kobj,
 					breath_attrs);
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 			sysfs_index = BREATH;
-#endif
 			if (rc < 0) {
 				dev_err(chip->dev, "Create breath file for %s led failed, rc=%d\n",
 						led->label, rc);
@@ -621,14 +614,13 @@ static int qpnp_tri_led_register(struct qpnp_tri_led_chip *chip)
 			}
 		}
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 		rc = sysfs_create_files(&led->cdev.dev->kobj, step_ms_attrs);
 		sysfs_index = STEP_MS;
 		if (rc < 0) {
 			dev_err(chip->dev, "Create step_ms file for %s led failed, rc=%d\n",
 					led->label, rc);
 			goto err_out;
-		} // git don't pick this bracket
+		}
 
 		rc = sysfs_create_files(&led->cdev.dev->kobj, pause_lo_count_attrs);
 		sysfs_index = PAUSE_LO;
@@ -636,7 +628,7 @@ static int qpnp_tri_led_register(struct qpnp_tri_led_chip *chip)
 			dev_err(chip->dev, "Create pause_lo_count file for %s led failed, rc=%d\n",
 					led->label, rc);
 			goto err_out;
-		} // git don't pick this bracket
+		}
 
 		rc = sysfs_create_files(&led->cdev.dev->kobj, lut_pattern_attrs);
 		sysfs_index = LUT_PATTERN;
@@ -644,7 +636,7 @@ static int qpnp_tri_led_register(struct qpnp_tri_led_chip *chip)
 			dev_err(chip->dev, "Create lut_pattern file for %s led failed, rc=%d\n",
 					led->label, rc);
 			goto err_out;
-		} // git don't pick this bracket
+		}
 
 		rc = sysfs_create_files(&led->cdev.dev->kobj, lo_idx_attrs);
 		sysfs_index = LO_IDX;
@@ -652,66 +644,59 @@ static int qpnp_tri_led_register(struct qpnp_tri_led_chip *chip)
 			dev_err(chip->dev, "Create lo_idx file for %s led failed, rc=%d\n",
 					led->label, rc);
 			goto err_out;
-		} // git don't pick this bracket
-#endif
+		}
 	}
 
 	return 0;
 
 err_out:
 	for (j = 0; j <= i; j++) {
-		if (j < i)
-#ifdef CONFIG_MACH_XIAOMI_SM8150
-		{
+		if (j < i) {
 			sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-					breath_attrs);
+				breath_attrs);
 			sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-					step_ms_attrs);
+				step_ms_attrs);
 			sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-					pause_lo_count_attrs);
+				pause_lo_count_attrs);
 			sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-					lut_pattern_attrs);
+				lut_pattern_attrs);
 			sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-					lo_idx_attrs);
+				lo_idx_attrs);
 		} else {
 			switch (sysfs_index) {
 				case LO_IDX:
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							breath_attrs);
+						breath_attrs);
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							step_ms_attrs);
+						step_ms_attrs);
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							pause_lo_count_attrs);
+						pause_lo_count_attrs);
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							lut_pattern_attrs);
+						lut_pattern_attrs);
 					break;
 				case LUT_PATTERN:
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							breath_attrs);
+						breath_attrs);
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							step_ms_attrs);
+						step_ms_attrs);
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							pause_lo_count_attrs);
+						pause_lo_count_attrs);
 					break;
 				case PAUSE_LO:
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							breath_attrs);
+						breath_attrs);
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							step_ms_attrs);
+						step_ms_attrs);
 					break;
 				case STEP_MS:
 					sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-							breath_attrs);
+						breath_attrs);
 					break;
 				case BREATH:
 				default:
 					break;
 			}
 		}
-#else
-			sysfs_remove_files(&chip->leds[j].cdev.dev->kobj,
-					breath_attrs);
-#endif
 
 		mutex_destroy(&chip->leds[j].lock);
 	}

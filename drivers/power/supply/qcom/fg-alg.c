@@ -1,4 +1,5 @@
 /* Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -277,8 +278,7 @@ int get_cycle_counts(struct cycle_counter *counter, const char **buf)
 	return 0;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
-/**
+ /**
  * set_cycle_count -
  * @counter: Cycle counter object
  * @value: The cycle count value to be set
@@ -298,9 +298,8 @@ int set_cycle_count(struct cycle_counter *counter, u16 count)
 
 	return 0;
 }
-#endif
 
-/**
+ /**
  * cycle_count_init -
  * @counter: Cycle counter object
  *

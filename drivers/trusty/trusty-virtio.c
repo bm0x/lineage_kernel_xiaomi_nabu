@@ -2,6 +2,7 @@
  * Trusty Virtio driver
  *
  * Copyright 2018 GoldenRiver Technologies Co., Ltd. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2015 Google, Inc.
  *
  * This program is free software; you can redistribute it and/or

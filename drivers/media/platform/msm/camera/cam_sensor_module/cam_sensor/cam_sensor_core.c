@@ -1,4 +1,5 @@
 /* Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -634,15 +635,8 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 	rc = camera_io_dev_read(
 		&(s_ctrl->io_master_info),
 		slave_info->sensor_id_reg_addr,
-		&chipid, CAMERA_SENSOR_I2C_TYPE_WORD,
-		CAMERA_SENSOR_I2C_TYPE_WORD);
-#else
-	rc = camera_io_dev_read(
-		&(s_ctrl->io_master_info),
-		slave_info->sensor_id_reg_addr,
 		&chipid, s_ctrl->sensor_probe_addr_type,
 		s_ctrl->sensor_probe_data_type);
-#endif
 
 	CAM_DBG(CAM_SENSOR, "read id: 0x%x expected id 0x%x:",
 			 chipid, slave_info->sensor_id);
@@ -654,9 +648,7 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 	return rc;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
-uint32_t g_operation_mode = 0;
-#endif
+uint32_t g_operation_mode = 0;// XIAOMI: libin16 add for face unlock
 int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 	void *arg)
 {
@@ -784,9 +776,10 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			goto release_mutex;
 		}
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+		// XIAOMI: libin16 add for face unlock --start
 		g_operation_mode = sensor_acq_dev.operation_mode;
-#endif
+		CAM_DBG(CAM_SENSOR, "operation mode :%d", g_operation_mode);
+		// XIAOMI: libin16 add for face unlock --end
 
 		bridge_params.session_hdl = sensor_acq_dev.session_handle;
 		bridge_params.ops = &s_ctrl->bridge_intf.ops;
@@ -944,16 +937,6 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 	}
 		break;
 	case CAM_CONFIG_DEV: {
-		if (s_ctrl->sensor_state < CAM_SENSOR_ACQUIRE) {
-			rc = -EINVAL;
-			CAM_ERR(CAM_SENSOR,
-				"sensor_id:[0x%x] not acquired to configure [%d] ",
-				s_ctrl->sensordata->slave_info.sensor_id,
-				s_ctrl->sensor_state
-			);
-			goto release_mutex;
-		}
-
 		rc = cam_sensor_i2c_pkt_parse(s_ctrl, arg);
 		if (rc < 0) {
 			CAM_ERR(CAM_SENSOR, "Failed i2c pkt parse: %d", rc);
@@ -1005,7 +988,6 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		}
 	}
 		break;
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	case CAM_UPDATE_REG: {
 		struct cam_sensor_i2c_reg_setting user_reg_setting;
 		struct cam_sensor_i2c_reg_array *i2c_reg_setting = NULL;
@@ -1046,7 +1028,7 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 
 		kfree(i2c_reg_setting);
 	}
-		break;
+	break;
 	case CAM_READ_REG: {
 		struct cam_sensor_i2c_reg_setting user_reg_setting;
 		struct cam_sensor_i2c_reg_array *i2c_reg_setting;
@@ -1097,8 +1079,7 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		}
 		kfree(i2c_reg_setting);
 	}
-		break;
-#endif
+	break;
 	default:
 		CAM_ERR(CAM_SENSOR, "Invalid Opcode: %d", cmd->op_code);
 		rc = -EINVAL;
@@ -1138,18 +1119,18 @@ int cam_sensor_publish_dev_info(struct cam_req_mgr_device_info *info)
 
 	info->dev_id = CAM_REQ_MGR_DEVICE_SENSOR;
 	strlcpy(info->name, CAM_SENSOR_NAME, sizeof(info->name));
-	if (s_ctrl->pipeline_delay >= 1 && s_ctrl->pipeline_delay <= 3)
+	if (s_ctrl->pipeline_delay >= 0 && s_ctrl->pipeline_delay <= 3)// XIAOMI: libin16 change
 		info->p_delay = s_ctrl->pipeline_delay;
 	else
 		info->p_delay = 2;
 	info->trigger = CAM_TRIGGER_POINT_SOF;
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+	// XIAOMI: libin16 add Only for face unlock --start
 	if (g_operation_mode == 0x8006)
 		info->p_delay = 0;
 	if (g_operation_mode == 0x8002)
 		info->p_delay = 1;
-#endif
+	// XIAOMI: libin16 add Only for face unlock --end
 
 	return rc;
 }

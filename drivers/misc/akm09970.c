@@ -1,6 +1,7 @@
 /* drivers/intput/misc/akm09970.c - akm09970 compass driver
  *
  * Copyright (c) 2018-2019, Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -43,7 +44,7 @@
 #include <linux/wait.h>
 #include <linux/hrtimer.h>
 #include <linux/regulator/consumer.h>
-#include "uapi/misc/akm09970.h"
+#include "uapi/linux/akm09970.h"
 
 #define CLEAR_IRQ_TIME 20
 

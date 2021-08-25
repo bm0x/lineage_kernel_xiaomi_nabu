@@ -3,6 +3,7 @@
  *
  * This code is based on drivers/scsi/ufs/ufshcd.c
  * Copyright (C) 2011-2013 Samsung India Software Operations
+ * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
  *
  * Authors:
@@ -213,9 +214,7 @@ static void ufshcd_update_uic_error_cnt(struct ufs_hba *hba, u32 reg, int type)
 /* UIC command timeout, unit: ms */
 #define UIC_CMD_TIMEOUT	500
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 #define UIC_PWR_CTRL_TIMEOUT 3000
-#endif
 
 /* NOP OUT retries waiting for NOP IN response */
 #define NOP_OUT_RETRIES    10
@@ -225,11 +224,7 @@ static void ufshcd_update_uic_error_cnt(struct ufs_hba *hba, u32 reg, int type)
 /* Query request retries */
 #define QUERY_REQ_RETRIES 3
 /* Query request timeout */
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 #define QUERY_REQ_TIMEOUT 3000 /* 3.0 seconds */
-#else
-#define QUERY_REQ_TIMEOUT 1500 /* 1.5 seconds */
-#endif
 
 /* Task management command timeout */
 #define TM_CMD_TIMEOUT	100 /* msecs */
@@ -434,10 +429,8 @@ static struct ufs_dev_fix ufs_fixups[] = {
 		UFS_DEVICE_QUIRK_HOST_PA_SAVECONFIGTIME),
 	UFS_FIX(UFS_VENDOR_SKHYNIX, UFS_ANY_MODEL,
 		UFS_DEVICE_QUIRK_WAIT_AFTER_REF_CLK_UNGATE),
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	UFS_FIX(UFS_VENDOR_SANDISK, UFS_ANY_MODEL,
 		UFS_DEVICE_QUIRK_WAIT_AFTER_REF_CLK_UNGATE),
-#endif
 	UFS_FIX(UFS_VENDOR_SKHYNIX, "hB8aL1",
 		UFS_DEVICE_QUIRK_HS_G1_TO_HS_G3_SWITCH),
 	UFS_FIX(UFS_VENDOR_SKHYNIX, "hC8aL1",
@@ -4516,9 +4509,6 @@ int ufshcd_map_desc_id_to_length(struct ufs_hba *hba,
 	case QUERY_DESC_IDN_STRING:
 		*desc_len = QUERY_DESC_MAX_SIZE;
 		break;
-	case QUERY_DESC_IDN_HEALTH:
-		*desc_len = hba->desc_size.hlth_desc;
-		break;
 	case QUERY_DESC_IDN_RFU_0:
 	case QUERY_DESC_IDN_RFU_1:
 		*desc_len = 0;
@@ -5129,11 +5119,7 @@ static int ufshcd_uic_pwr_ctrl(struct ufs_hba *hba, struct uic_command *cmd)
 
 more_wait:
 	if (!wait_for_completion_timeout(hba->uic_async_done,
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 					 msecs_to_jiffies(UIC_PWR_CTRL_TIMEOUT))) {
-#else
-					 msecs_to_jiffies(UIC_CMD_TIMEOUT))) {
-#endif
 		u32 intr_status = 0;
 		s64 ts_since_last_intr;
 
@@ -5314,6 +5300,8 @@ static int __ufshcd_uic_hibern8_enter(struct ufs_hba *hba)
 		ufshcd_update_error_stats(hba, UFS_ERR_HIBERN8_ENTER);
 		dev_err(hba->dev, "%s: hibern8 enter failed. ret = %d\n",
 			__func__, ret);
+		if (hba->crash_on_err)
+			BUG_ON(1);
 
 		/*
 		 * If link recovery fails then return error code returned from
@@ -5630,6 +5618,7 @@ static int ufshcd_complete_dev_init(struct ufs_hba *hba)
 	int err;
 	bool flag_res = 1;
 	ktime_t timeout;
+	bool timeout_warn = false;
 
 	err = ufshcd_query_flag_retry(hba, UPIU_QUERY_OPCODE_SET_FLAG,
 		QUERY_FLAG_IDN_FDEVICEINIT, NULL);
@@ -5644,18 +5633,14 @@ static int ufshcd_complete_dev_init(struct ufs_hba *hba)
 	 * Some vendor devices are taking longer time to complete its internal
 	 * initialization, so set fDeviceInit flag poll time to 5 secs
 	 */
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	timeout = ktime_add_ms(ktime_get(), 8000);
-#else
-	timeout = ktime_add_ms(ktime_get(), 5000);
-#endif
 
 	/* poll for max. 5sec for fDeviceInit flag to clear */
 	while (1) {
-		bool timedout = ktime_after(ktime_get(), timeout);
+		timeout_warn = ktime_after(ktime_get(), timeout);
 		err = ufshcd_query_flag_retry(hba, UPIU_QUERY_OPCODE_READ_FLAG,
 					QUERY_FLAG_IDN_FDEVICEINIT, &flag_res);
-		if (err || !flag_res || timedout)
+		if (err || !flag_res || timeout_warn)
 			break;
 
 		/*
@@ -5669,6 +5654,10 @@ static int ufshcd_complete_dev_init(struct ufs_hba *hba)
 			i++;
 	}
 
+	if (timeout_warn)
+		dev_err(hba->dev,
+			"%s reading fDeviceInit flag timeout.\n",
+			__func__);
 	if (err)
 		dev_err(hba->dev,
 			"%s reading fDeviceInit flag failed with error %d\n",
@@ -8589,11 +8578,6 @@ static void ufshcd_init_desc_sizes(struct ufs_hba *hba)
 		&hba->desc_size.geom_desc);
 	if (err)
 		hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
-
-	err = ufshcd_read_desc_length(hba, QUERY_DESC_IDN_HEALTH, 0,
-		&hba->desc_size.hlth_desc);
-	if (err)
-		hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
 }
 
 static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
@@ -8604,7 +8588,6 @@ static void ufshcd_def_desc_sizes(struct ufs_hba *hba)
 	hba->desc_size.conf_desc = QUERY_DESC_CONFIGURATION_DEF_SIZE;
 	hba->desc_size.unit_desc = QUERY_DESC_UNIT_DEF_SIZE;
 	hba->desc_size.geom_desc = QUERY_DESC_GEOMETRY_DEF_SIZE;
-	hba->desc_size.hlth_desc = QUERY_DESC_HEALTH_DEF_SIZE;
 }
 
 static void ufshcd_apply_pm_quirks(struct ufs_hba *hba)

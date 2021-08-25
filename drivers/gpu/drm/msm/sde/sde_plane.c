@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014-2019 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2013 Red Hat
  * Author: Rob Clark <robdclark@gmail.com>
  *
@@ -4298,7 +4299,7 @@ static void _sde_plane_atomic_disable(struct drm_plane *plane,
 				SDE_SSPP_RECT_SOLO, SDE_SSPP_MULTIRECT_NONE);
 }
 
-int sde_plane_is_fod_layer(const struct drm_plane_state *drm_state)
+int sde_plane_check_fod_layer(const struct drm_plane_state *drm_state)
 {
 	struct sde_plane_state *pstate;
 
@@ -4412,6 +4413,9 @@ static void _sde_plane_install_properties(struct drm_plane *plane,
 
 	msm_property_install_range(&psde->property_info, "zpos",
 		0x0, 0, INT_MAX, 0, PLANE_PROP_ZPOS);
+
+	msm_property_install_range(&psde->property_info, "fod",
+		0x0, 0, INT_MAX, 0, PLANE_PROP_FOD);
 
 	msm_property_install_range(&psde->property_info, "fod",
 		0x0, 0, INT_MAX, 0, PLANE_PROP_FOD);

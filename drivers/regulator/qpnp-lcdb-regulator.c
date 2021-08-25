@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1283,7 +1284,6 @@ static int qpnp_lcdb_get_voltage(struct qpnp_lcdb *lcdb,
 		return rc;
 	}
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	if ((val & 0x80) && (type == NCP))//NCP follow 0x71 LDO
 	{
 		offset = LCDB_LDO_OUTPUT_VOLTAGE_REG;
@@ -1294,7 +1294,6 @@ static int qpnp_lcdb_get_voltage(struct qpnp_lcdb *lcdb,
 				 return rc;
 		}
 	}
-#endif
 
 	val &= SET_OUTPUT_VOLTAGE_MASK;
 	if (val < VOLTAGE_STEP_50MV_OFFSET) {

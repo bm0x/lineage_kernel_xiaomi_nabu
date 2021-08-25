@@ -1,4 +1,5 @@
 /* Copyright (c) 2017-2020 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -1348,7 +1349,6 @@ static int usb_icl_vote_callback(struct votable *votable, void *data,
 					== POWER_SUPPLY_PL_USBMID_USBMID)
 		cp_configure_ilim(chip, ICL_CHANGE_VOTER, icl_ua);
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	if (!chip->usb_psy)
 		chip->usb_psy = power_supply_get_by_name("usb");
 	if (!chip->usb_psy) {
@@ -1371,7 +1371,6 @@ static int usb_icl_vote_callback(struct votable *votable, void *data,
 	}
 
 	cp_configure_ilim(chip, ICL_CHANGE_VOTER, icl_ua);
-#endif
 
 	return 0;
 }

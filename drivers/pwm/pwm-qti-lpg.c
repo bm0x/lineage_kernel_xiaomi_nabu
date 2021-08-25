@@ -1,4 +1,5 @@
 /* Copyright (c) 2018-2019, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -172,12 +173,10 @@ struct qpnp_lpg_lut {
 	struct mutex		lock;
 	u32			reg_base;
 	u32			*pattern; /* patterns in percentage */
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	bool			pattern_switch;
 	u32			pattern_length;
 	u32			*pattern_camera;
 	u32			pattern_camera_length;
-#endif
 };
 
 struct qpnp_lpg_channel {
@@ -388,7 +387,6 @@ static struct qpnp_lpg_channel *pwm_dev_to_qpnp_lpg(struct pwm_chip *pwm_chip,
 	return &chip->lpgs[hw_idx];
 }
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 void qpnp_lpg_ramp_step_ms_set(struct pwm_device *pwm, u16 step_ms)
 {
 	struct qpnp_lpg_channel *channel;
@@ -440,7 +438,6 @@ u8 qpnp_lpg_pause_lo_count_get(struct pwm_device *pwm)
 	return 0;
 }
 EXPORT_SYMBOL(qpnp_lpg_pause_lo_count_get);
-#endif
 
 static int __find_index_in_array(int member, const int array[], int length)
 {
@@ -785,7 +782,6 @@ static int qpnp_lpg_set_ramp_config(struct qpnp_lpg_channel *lpg)
 	return rc;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 u8 qpnp_lpg_switch_lut_pattern(struct pwm_device *pwm, int index)
 {
 	struct qpnp_lpg_channel *channel;
@@ -863,7 +859,6 @@ u8 qpnp_lpg_lo_idx_set(struct pwm_device *pwm, int lo_idx)
 	return 0;
 }
 EXPORT_SYMBOL(qpnp_lpg_lo_idx_set);
-#endif
 
 static void __qpnp_lpg_calc_pwm_period(u64 period_ns,
 			struct lpg_pwm_config *pwm_config)
@@ -1578,9 +1573,7 @@ static int qpnp_lpg_parse_dt(struct qpnp_lpg_chip *chip)
 	}
 
 	length = rc;
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	chip->lut->pattern_length = rc;
-#endif
 
 	if (length > max_count) {
 		dev_err(chip->dev, "qcom,lut-patterns length %d exceed max %d\n",
@@ -1601,7 +1594,6 @@ static int qpnp_lpg_parse_dt(struct qpnp_lpg_chip *chip)
 		return rc;
 	}
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 	chip->lut->pattern_switch = of_property_read_bool(chip->dev->of_node,
 						"qcom,lut-pattern-switch");
 	pr_info("lut pattern switch %s\n",
@@ -1636,7 +1628,6 @@ static int qpnp_lpg_parse_dt(struct qpnp_lpg_chip *chip)
 			return rc;
 		}
 	}
-#endif
 
 	if (of_get_available_child_count(chip->dev->of_node) == 0) {
 		dev_err(chip->dev, "No ramp configuration for any LPG\n");
@@ -1725,13 +1716,11 @@ static int qpnp_lpg_parse_dt(struct qpnp_lpg_chip *chip)
 		if (chip->use_sdam)
 			continue;
 
-#ifdef CONFIG_MACH_XIAOMI_SM8150
 		if (chip->lut->pattern_switch) {
 			lpg->max_pattern_length =
 				chip->lut->pattern_length > chip->lut->pattern_camera_length ? \
 				chip->lut->pattern_length : chip->lut->pattern_camera_length;
 		}
-#endif
 
 		rc = of_property_read_u32(child,
 				"qcom,ramp-pause-hi-count", &tmp);

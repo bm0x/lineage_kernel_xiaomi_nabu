@@ -1,4 +1,5 @@
 /* Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -87,9 +88,7 @@
 #define ILIM_VOTER		"ILIM_VOTER"
 #define FCC_VOTER		"FCC_VOTER"
 #define ICL_VOTER		"ICL_VOTER"
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 #define ICL_CHANGE_VOTER	"ICL_CHANGE_VOTER"
-#endif
 #define TAPER_END_VOTER		"TAPER_END_VOTER"
 #define WIRELESS_VOTER		"WIRELESS_VOTER"
 #define SRC_VOTER		"SRC_VOTER"
@@ -142,9 +141,7 @@ struct smb1390 {
 	int			irqs[NUM_IRQS];
 	bool			status_change_running;
 	bool			taper_work_running;
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	bool			taper_early_trigger;
-#endif
 	struct smb1390_iio	iio;
 	int			irq_status;
 	int			taper_entry_fv;
@@ -330,7 +327,7 @@ static ssize_t stat1_show(struct class *c, struct class_attribute *attr,
 	rc = smb1390_read(chip, CORE_STATUS1_REG, &val);
 	if (rc < 0)
 		return -EINVAL;
-
+	/*pr_info("smb1390 CORE_STATUS1_REG: 0x%x\n", val);*/
 	return snprintf(buf, PAGE_SIZE, "%x\n", val);
 }
 static CLASS_ATTR_RO(stat1);
@@ -344,12 +341,11 @@ static ssize_t stat2_show(struct class *c, struct class_attribute *attr,
 	rc = smb1390_read(chip, CORE_STATUS2_REG, &val);
 	if (rc < 0)
 		return -EINVAL;
-
+	/*pr_info("smb1390 CORE_STATUS2_REG: 0x%x\n", val);*/
 	return snprintf(buf, PAGE_SIZE, "%x\n", val);
 }
 static CLASS_ATTR_RO(stat2);
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 static ssize_t model_name_show(struct class *c, struct class_attribute *attr,
 			 char *buf)
 {
@@ -363,7 +359,6 @@ static ssize_t model_name_show(struct class *c, struct class_attribute *attr,
 		return snprintf(buf, PAGE_SIZE, "%s\n", "smb1390");
 }
 static CLASS_ATTR_RO(model_name);
-#endif
 
 static ssize_t enable_show(struct class *c, struct class_attribute *attr,
 			   char *buf)
@@ -383,6 +378,7 @@ static ssize_t enable_store(struct class *c, struct class_attribute *attr,
 	if (kstrtoul(buf, 0, &val))
 		return -EINVAL;
 
+	pr_info("enable smb1390: %d\n", val);
 	vote(chip->disable_votable, USER_VOTER, !val, 0);
 	return count;
 }
@@ -491,9 +487,7 @@ static struct attribute *cp_class_attrs[] = {
 	&class_attr_toggle_switcher.attr,
 	&class_attr_die_temp.attr,
 	&class_attr_isns.attr,
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	&class_attr_model_name.attr,
-#endif
 	NULL,
 };
 ATTRIBUTE_GROUPS(cp_class);
@@ -544,15 +538,11 @@ static int smb1390_ilim_vote_cb(struct votable *votable, void *data,
 	}
 
 	/* ILIM less than 1A is not accurate; disable charging */
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	if (ilim_uA < 900000) {
-#else
-	if (ilim_uA < 1000000) {
-#endif
-		pr_debug("ILIM %duA is too low to allow charging\n", ilim_uA);
+		pr_info("ILIM %duA is too low to allow charging\n", ilim_uA);
 		vote(chip->disable_votable, ILIM_VOTER, true, 0);
 	} else {
-		pr_debug("setting ILIM to %duA\n", ilim_uA);
+		pr_info("setting ILIM to %duA\n", ilim_uA);
 		rc = smb1390_masked_write(chip, CORE_FTRIM_ILIM_REG,
 				CFG_ILIM_MASK,
 				DIV_ROUND_CLOSEST(ilim_uA - 500000, 100000));
@@ -604,20 +594,17 @@ static int smb1390_notifier_cb(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
+
 #define TAPER_CAPACITY_THR		55
 #define TAPER_CAPCITY_DELTA		1
 #define BATT_COOL_THR		220
-#endif
 static void smb1390_status_change_work(struct work_struct *work)
 {
 	struct smb1390 *chip = container_of(work, struct smb1390,
 					    status_change_work);
 	union power_supply_propval pval = {0, };
 	int max_fcc_ma, rc;
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	int capacity, batt_temp, charge_type;
-#endif
 
 	if (!is_psy_voter_available(chip))
 		goto out;
@@ -649,9 +636,7 @@ static void smb1390_status_change_work(struct work_struct *work)
 		 */
 		if (pval.intval == POWER_SUPPLY_CP_WIRELESS) {
 			vote(chip->ilim_votable, ICL_VOTER, false, 0);
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 			vote(chip->ilim_votable, ICL_CHANGE_VOTER, false, 0);
-#endif
 			rc = power_supply_get_property(chip->dc_psy,
 					POWER_SUPPLY_PROP_CURRENT_MAX, &pval);
 			if (rc < 0)
@@ -690,7 +675,6 @@ static void smb1390_status_change_work(struct work_struct *work)
 		if (get_effective_result(chip->disable_votable))
 			goto out;
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 		rc = power_supply_get_property(chip->batt_psy,
 			       POWER_SUPPLY_PROP_CAPACITY, &pval);
 		if (rc < 0) {
@@ -739,7 +723,6 @@ static void smb1390_status_change_work(struct work_struct *work)
 				chip->taper_early_trigger = false;
 			}
 		}
-#endif
 
 		rc = power_supply_get_property(chip->batt_psy,
 				POWER_SUPPLY_PROP_CHARGE_TYPE, &pval);
@@ -764,9 +747,7 @@ static void smb1390_status_change_work(struct work_struct *work)
 				BATT_PROFILE_VOTER);
 		vote(chip->fcc_votable, CP_VOTER,
 				max_fcc_ma > 0 ? true : false, max_fcc_ma);
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 		chip->taper_early_trigger = false;
-#endif
 		vote(chip->disable_votable, SOC_LEVEL_VOTER, true, 0);
 	}
 
@@ -780,9 +761,7 @@ static void smb1390_taper_work(struct work_struct *work)
 	struct smb1390 *chip = container_of(work, struct smb1390, taper_work);
 	union power_supply_propval pval = {0, };
 	int rc, fcc_uA;
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	int capacity;
-#endif
 
 	if (!is_psy_voter_available(chip))
 		goto out;
@@ -807,6 +786,23 @@ static void smb1390_taper_work(struct work_struct *work)
 				&& !chip->taper_early_trigger)
 			chip->taper_early_trigger = true;
 #endif
+
+		rc = power_supply_get_property(chip->batt_psy,
+			       POWER_SUPPLY_PROP_CAPACITY, &pval);
+		if (rc < 0) {
+			pr_err("Couldn't get batt capacity rc=%d\n", rc);
+			goto out;
+		}
+		capacity = pval.intval;
+		/*
+		 * if capacity is lower than 55% - 1%(delta)  and taper charge comes
+		 * we think it is a early taper, normaly due to battery temperature is low
+		 * such as 10 to 22 degree, battery esr is high and high current charging
+		 * (charge pump is working during 10 to 22 degree, not working below 10)
+		 */
+		if ((capacity < (TAPER_CAPACITY_THR - TAPER_CAPCITY_DELTA))
+				&& !chip->taper_early_trigger)
+			chip->taper_early_trigger = true;
 
 		rc = power_supply_get_property(chip->batt_psy,
 					POWER_SUPPLY_PROP_CHARGE_TYPE, &pval);
@@ -910,10 +906,7 @@ static void smb1390_destroy_votables(struct smb1390 *chip)
 
 static int smb1390_init_hw(struct smb1390 *chip)
 {
-	int rc;
-#ifdef CONFIG_MACH_XIAOMI_VAYU
-	int val;
-#endif
+	int rc, val;
 
 	/*
 	 * charge pump is initially disabled; this indirectly votes to allow
@@ -939,15 +932,15 @@ static int smb1390_init_hw(struct smb1390 *chip)
 	if (rc < 0)
 		return rc;
 
-#ifdef CONFIG_MACH_XIAOMI_VAYU
 	rc = smb1390_read(chip, 0x1032, &val);
+	pr_err("default smb1390 400K 0x1032_REG: 0x%x\n", val);
 
 	rc = smb1390_masked_write(chip, 0x1032, 0x0F, 0x07);
 	rc = smb1390_read(chip, 0x1032, &val);
+	pr_err("modify smb1390 800K 0x1032_REG: 0x%x\n", val);
 
 	if (rc < 0)
 		return rc;
-#endif
 
 	return 0;
 }
